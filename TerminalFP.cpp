@@ -55,11 +55,23 @@ int main()
 		float fElapsedTime = elapsedTime.count();
 
 		/* Controls */
+		if (GetAsyncKeyState((unsigned short)'W') & 0x8000)
+		{
+			fPlayerX += sinf(fPlayerA) * 5.0f * fElapsedTime;
+			fPlayerY += cosf(fPlayerA) * 5.0f * fElapsedTime;
+		}
+
+		if (GetAsyncKeyState((unsigned short)'S') & 0x8000)
+		{
+			fPlayerX -= sinf(fPlayerA) * 5.0f * fElapsedTime;
+			fPlayerY -= cosf(fPlayerA) * 5.0f * fElapsedTime;
+		}
+
 		if (GetAsyncKeyState((unsigned short)'A') & 0x8000)
-			fPlayerA -= (0.1f) * fElapsedTime;
+			fPlayerA -= (0.9f) * fElapsedTime;
 		
 		if (GetAsyncKeyState((unsigned short)'D') & 0x8000)
-			fPlayerA += (0.1f) * fElapsedTime;
+			fPlayerA += (0.9f) * fElapsedTime;
 
 		for (int x = 0; x < nScreenWidth; ++x)
 		{
@@ -113,12 +125,26 @@ int main()
 
 			for (int y = 0; y < nScreenHeight; ++y)
 			{
-				if (y < nCeiling)
+				if (y <= nCeiling)
 					screen[y * nScreenWidth + x] = ' ';
 				else if (y > nCeiling && y <= nFloor)
 					screen[y * nScreenWidth + x] = nShade;
 				else
-					screen[y * nScreenWidth + x] = ' ';
+				{
+					/* Shade floor based on distance */
+					float b = 1.0f - (((float)y - nScreenHeight / 2.0f) / ((float)nScreenHeight / 2.0f));
+					if (b < 0.25)
+						nShade = '#';
+					else if (b < 0.5)
+						nShade = 'X';
+					else if (b < 0.75)
+						nShade = '.';
+					else if (b < 0.9)
+						nShade = '-';
+					else
+						nShade = ' ';
+					screen[y * nScreenWidth + x] = nShade;
+				}
 			}
 		}
 
