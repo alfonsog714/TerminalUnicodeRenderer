@@ -38,7 +38,7 @@ int main()
 	map += L"#..............#";
 	map += L"#..............#";
 	map += L"#..............#";
-	map += L"#..............#";
+	map += L"#........#######";
 	map += L"#..............#";
 	map += L"################";
 
@@ -59,19 +59,31 @@ int main()
 		{
 			fPlayerX += sinf(fPlayerA) * 5.0f * fElapsedTime;
 			fPlayerY += cosf(fPlayerA) * 5.0f * fElapsedTime;
+
+			if (map[(int)fPlayerY * nMapWidth + (int)fPlayerX] == '#')
+			{
+				fPlayerX -= sinf(fPlayerA) * 5.0f * fElapsedTime;
+				fPlayerY -= cosf(fPlayerA) * 5.0f * fElapsedTime;
+			}
 		}
 
 		if (GetAsyncKeyState((unsigned short)'S') & 0x8000)
 		{
 			fPlayerX -= sinf(fPlayerA) * 5.0f * fElapsedTime;
 			fPlayerY -= cosf(fPlayerA) * 5.0f * fElapsedTime;
+
+			if (map[(int)fPlayerY * nMapWidth + (int)fPlayerX] == '#')
+			{
+				fPlayerX += sinf(fPlayerA) * 5.0f * fElapsedTime;
+				fPlayerY += cosf(fPlayerA) * 5.0f * fElapsedTime;
+			}
 		}
 
 		if (GetAsyncKeyState((unsigned short)'A') & 0x8000)
-			fPlayerA -= (0.9f) * fElapsedTime;
+			fPlayerA -= (2.0f) * fElapsedTime;
 		
 		if (GetAsyncKeyState((unsigned short)'D') & 0x8000)
-			fPlayerA += (0.9f) * fElapsedTime;
+			fPlayerA += (2.0f) * fElapsedTime;
 
 		for (int x = 0; x < nScreenWidth; ++x)
 		{
