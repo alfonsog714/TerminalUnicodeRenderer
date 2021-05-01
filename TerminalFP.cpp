@@ -1,6 +1,9 @@
 #include <iostream>
 #include <Windows.h>
+#include <algorithm>
 #include <chrono>
+#include <vector>
+
 
 int nScreenWidth = 120;
 int nScreenHeight = 40;
@@ -92,6 +95,7 @@ int main()
 
 			float fDistanceToWall = 0;
 			bool bHitWall = false;
+			bool bBoundary = false;
 
 			/* Unit vector for ray in player space */
 			float fEyeX = sinf(fRayAngle);
@@ -115,6 +119,25 @@ int main()
 					if (map[nTestY * nMapWidth + nTestX] == '#')
 					{
 						bHitWall = true;
+
+						std::vector<std::pair<float, float>> p; // distance, dot product
+
+						for(int tx = 0; tx < 2; ++tx)
+							for (int ty = 0; ty < 2; ++ty)
+							{
+								float vy = (float)nTestY + ty - fPlayerY;
+								float vx = (float)nTestX + tx - fPlayerX;
+								float d = sqrt(vx * vx + vy * vy);
+								float dot = (fEyeX * vx / d) + (fEyeY * vy / d);
+								p.push_back(std::make_pair(d, dot));
+							}
+						/* Sorting pairs from closest to farthest. Utilizes sort algorithm utility with a provided lambda function */
+						std::sort(p.begin(), p.end(), [](const std::pair<float, float>& left, const std::pair<float, float>& right) { return left.first < right.first; });
+
+						float fBound = 0.01;
+						if (acos(p.at(0).second) < fBound) bBoundary = true;
+						if (acos(p.at(1).second) < fBound) bBoundary = true;
+						//if (acos(p.at(2).second) < fBound) bBoundary = true;
 					}
 				}
 			}
@@ -134,6 +157,10 @@ int main()
 				nShade = 0x2591;
 			else
 				nShade = ' ';
+
+			if (bBoundary)
+				nShade = ' ';
+				//nShade = 0x2591;
 
 			for (int y = 0; y < nScreenHeight; ++y)
 			{
@@ -159,6 +186,17 @@ int main()
 				}
 			}
 		}
+
+		swprintf_s(screen, 40, L"X=%3.2f, Y=%3.2f, A=%3.2f FPS=%3.2f ", fPlayerX, fPlayerY, fPlayerA, 1.0f / fElapsedTime);
+
+		for(int nx=0; nx < nMapWidth; ++nx)
+			for (int ny = 0; ny < nMapWidth; ++ny)
+			{
+				screen[(ny + 1) * nScreenWidth + nx] = map[ny * nMapWidth + nx];
+
+			}
+
+		screen[((int)fPlayerY + 1) * nScreenWidth + (int)fPlayerX] = 'P';
 
 		screen[nScreenWidth * nScreenHeight - 1] = '\0';
 		WriteConsoleOutputCharacter(hConsole, screen, nScreenHeight * nScreenWidth, { 0, 0 }, &dwBytesWritten);
