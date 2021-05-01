@@ -1,6 +1,6 @@
 #include <iostream>
-#include <math.h>
 #include <Windows.h>
+#include <chrono>
 
 int nScreenWidth = 120;
 int nScreenHeight = 40;
@@ -42,9 +42,25 @@ int main()
 	map += L"#..............#";
 	map += L"################";
 
+	auto tp1 = std::chrono::system_clock::now();
+	auto tp2 = std::chrono::system_clock::now();
+
 	/* Game loop */
 	while (1)
 	{
+		/* Calculation of Delta Time */
+		tp2 = std::chrono::system_clock::now();
+		std::chrono::duration<float> elapsedTime = tp2 - tp1;
+		tp1 = tp2;
+		float fElapsedTime = elapsedTime.count();
+
+		/* Controls */
+		if (GetAsyncKeyState((unsigned short)'A') & 0x8000)
+			fPlayerA -= (0.1f) * fElapsedTime;
+		
+		if (GetAsyncKeyState((unsigned short)'D') & 0x8000)
+			fPlayerA += (0.1f) * fElapsedTime;
+
 		for (int x = 0; x < nScreenWidth; ++x)
 		{
 			/* For each column on the screen, calculate the projected ray angle into world space. */
